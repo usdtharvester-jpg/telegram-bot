@@ -1,29 +1,28 @@
 from flask import Flask
 from threading import Thread
+import asyncio
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    ContextTypes,
-)
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-# ---------------- KEEP ALIVE ---------------- #
+# ---------------- FLASK ---------------- #
 
-app_web = Flask(__name__)
+web_app = Flask(__name__)
 
-@app_web.route('/')
+@web_app.route('/')
 def home():
-    return "BG Wealth Sharing Bot is Running!"
+    return "BG Bot Running Successfully!"
 
-def run():
-    app_web.run(host='0.0.0.0', port=10000)
+def run_web():
+    web_app.run(host="0.0.0.0", port=10000)
 
 def keep_alive():
-    t = Thread(target=run)
+    t = Thread(target=run_web)
     t.start()
 
 # ---------------- TELEGRAM BOT ---------------- #
+
+BOT_TOKEN = "8311716950:AAE2IJiRk1dQZzEDaUwOe1oJPLTMgNR1TFI"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -37,7 +36,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [
             InlineKeyboardButton(
                 "▶️ YouTube Channel",
-                url="https://youtube.com/@bgwealthsharinglimitedofficial?si=TE4ZNzByHPNuoity"
+                url="https://youtube.com/@bgwealthsharinglimitedofficial"
             )
         ]
     ]
@@ -50,16 +49,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=reply_markup
     )
 
-# ---------------- MAIN ---------------- #
+async def main():
 
-BOT_TOKEN = "8311716950:AAEqLgTvulrep7a7u5A_7wk2mplSeBIyMt0"
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
 
-app.add_handler(CommandHandler("start", start))
+    print("Bot started successfully!")
+
+    await app.run_polling()
+
+# ---------------- START ---------------- #
 
 keep_alive()
 
-print("Bot is running...")
-
-app.run_polling()
+asyncio.run(main())
