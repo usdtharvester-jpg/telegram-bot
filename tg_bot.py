@@ -1,20 +1,19 @@
 from flask import Flask
 from threading import Thread
-import asyncio
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-# ---------------- FLASK ---------------- #
+# ---------------- WEB SERVER ---------------- #
 
-web_app = Flask(__name__)
+web = Flask(__name__)
 
-@web_app.route('/')
+@web.route("/")
 def home():
-    return "BG Bot Running Successfully!"
+    return "Bot is alive!"
 
 def run_web():
-    web_app.run(host="0.0.0.0", port=10000)
+    web.run(host="0.0.0.0", port=10000)
 
 def keep_alive():
     t = Thread(target=run_web)
@@ -22,7 +21,7 @@ def keep_alive():
 
 # ---------------- TELEGRAM BOT ---------------- #
 
-BOT_TOKEN = "8311716950:AAE2IJiRk1dQZzEDaUwOe1oJPLTMgNR1TFI"
+TOKEN = "8311716950:AAE2IJiRk1dQZzEDaUwOe1oJPLTMgNR1TFI"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -49,18 +48,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=reply_markup
     )
 
-async def main():
+# ---------------- MAIN ---------------- #
 
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
+app = ApplicationBuilder().token(TOKEN).build()
 
-    app.add_handler(CommandHandler("start", start))
-
-    print("Bot started successfully!")
-
-    await app.run_polling()
-
-# ---------------- START ---------------- #
+app.add_handler(CommandHandler("start", start))
 
 keep_alive()
 
-asyncio.run(main())
+print("Bot started successfully!")
+
+app.run_polling(drop_pending_updates=True)
